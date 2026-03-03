@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ASR Order Splitter</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="style.css" rel="stylesheet">
+</head>
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+    
+<body class="bg-light">
+
+    <div class="container-fluid py-4">
+        <div class="row justify-content-center">
+            <div class="col-md-10">
+                <div class="card shadow">
+
+                    <!-- Header -->
+                    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                        <h4 class="mb-0">ASR Daily Order Splitter</h4>
+                        <div>
+                            <button class="btn btn-outline-light me-2" onclick="clearAll()" id="clearBtn" disabled>
+                                <i class="fas fa-times me-1"></i>Clear
+                            </button>
+                            <button class="btn btn-outline-light me-2" onclick="downloadAll()" id="downloadAllBtn" disabled>
+                                <i class="fas fa-download me-1"></i>Download All
+                            </button>
+                            <button class="btn btn-outline-light" onclick="downloadCombined()" id="downloadCombinedBtn" disabled>
+                                <i class="fas fa-layer-group me-1"></i>Combined Workbook
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="card-body">
+
+                                <!-- File upload row -->
+                                <div class="row mb-4">
+                                    <div class="col-md-6">
+                                        <label for="excelFile" class="form-label">Upload Excel File</label>
+                                        <input type="file" class="form-control" id="excelFile" accept=".xlsx,.xls">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="alert mt-md-4" id="status" style="display:none;"></div>
+                                    </div>
+                                </div>
+
+                                <!-- Split mode -->
+                                <div class="row mb-4" id="modeRow" style="display:none;">
+                                    <div class="col-md-6">
+                                        <label class="form-label">Split Mode</label>
+                                        <div class="btn-group w-100" role="group">
+                                            <input type="radio" class="btn-check" name="splitMode" id="modeBoth" value="both" checked>
+                                            <label class="btn btn-outline-primary" for="modeBoth">Cover Spec + Paper</label>
+
+                                            <input type="radio" class="btn-check" name="splitMode" id="modeCover" value="cover">
+                                            <label class="btn btn-outline-primary" for="modeCover">Cover Spec Only</label>
+
+                                            <input type="radio" class="btn-check" name="splitMode" id="modePaper" value="paper">
+                                            <label class="btn btn-outline-primary" for="modePaper">Paper Only</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 d-flex align-items-end">
+                                        <span class="text-muted small" id="comboInfo"></span>
+                                    </div>
+                                </div>
+
+                                <!-- Preview table -->
+                                <div class="table-responsive">
+                                    <table class="table table-bordered table-hover">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th>Download</th>
+                                                <th>Sheet Name</th>
+                                                <th>Orders</th>
+                                                <th>Cover Spec</th>
+                                                <th>Paper</th>
+                                                <th>GSM</th>
+                                                <th>Micron</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="previewBody">
+                                            <tr>
+                                                <td colspan="7" class="text-center text-muted">No data loaded</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+
+                    </div><!-- /card-body -->
+                </div><!-- /card -->
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
