@@ -120,12 +120,6 @@ function decodeSpecCode(code) {
     const finish = specData.finish[code[3]];
     if (finish) parts.push(`Finish: ${finish}`);
 
-    const texture = specData.texture[code[4]];
-    if (texture) parts.push(`Texture: ${texture}`);
-
-    const weight = specData.weight[code[5]];
-    if (weight) parts.push(`Weight: ${weight}`);
-
     if (code.length > 6) {
         const special = [];
         let i = 0;
@@ -402,6 +396,3 @@ function showStatus(message, type) {
     el.style.display = 'block';
     if (type === 'success') setTimeout(() => { el.style.display = 'none'; }, 3000);
 }
-
-
-
