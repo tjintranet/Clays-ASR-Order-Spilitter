@@ -312,11 +312,19 @@ function buildFilteredSheet(rowIndices) {
         e: { r: rowIndices.length, c: srcRef.e.c }
     });
 
-    // Copy column widths exactly
-    if (srcWs['!cols']) newWs['!cols'] = srcWs['!cols'].map(c => c ? { ...c } : {});
+    // Copy column widths exactly (sliced to only the columns present)
+    if (srcWs['!cols']) newWs['!cols'] = srcWs['!cols'].slice(0, numCols).map(c => c ? { ...c } : {});
 
-    // Copy row heights if present
-    if (srcWs['!rows']) newWs['!rows'] = srcWs['!rows'].map(r => r ? { ...r } : {});
+    // Copy row heights only for rows in the new sheet to avoid phantom blank rows
+    if (srcWs['!rows']) {
+        const newRows = [];
+        newRows[0] = srcWs['!rows'][0] ? { ...srcWs['!rows'][0] } : undefined;
+        rowIndices.forEach((srcDataIdx, destIdx) => {
+            const srcRowIdx = srcDataIdx + 1;
+            newRows[destIdx + 1] = srcWs['!rows'][srcRowIdx] ? { ...srcWs['!rows'][srcRowIdx] } : undefined;
+        });
+        newWs['!rows'] = newRows;
+    }
 
     return newWs;
 }
