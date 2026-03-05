@@ -6,6 +6,8 @@ A browser-based tool for splitting ASR Daily Order Excel files into separate wor
 
 - **Excel upload** — drag and drop or browse to load an `.xlsx` or `.xls` ASR Daily Order file
 - **Three split modes** — group rows by Cover Spec + Paper, Cover Spec only, or Paper only
+- **No Finish bleed splitting** — groups where the Cover Spec has No Finish (position 4 = `0`) are automatically further split by the `Bleeds` column (`Yes` / `No`), producing separate output sheets for bleed and non-bleed orders
+- **Row sorting** — within each output sheet, rows are sorted by Trim Width (largest first), then Trim Height, then Extent, then Quantity (all descending)
 - **Spec code decoding** — Cover Spec codes (e.g. `C400P2`) are automatically translated into human-readable descriptions in the preview table and the Combined Workbook Summary sheet
 - **Per-group download** — download any individual group as a standalone `.xlsx` file
 - **Download All** — download every group as a separate `.xlsx` file in sequence
@@ -39,8 +41,35 @@ The uploaded file must contain at least the following column headers in the firs
 | `Paper` | Paper stock code (e.g. `DHOL01`) |
 | `GSM` | Paper weight |
 | `Micron` | Paper thickness |
+| `Bleeds` | Whether the job has bleed — `Yes` or `No` (used to sub-split No Finish groups) |
+| `Trim Width` | Finished trim width (numeric) — used for row sorting |
+| `Trim Height` | Finished trim height (numeric) — used for row sorting |
+| `Extent` | Number of pages (numeric) — used for row sorting |
+| `Quantity` | Order quantity (numeric) — used for row sorting |
 
 All other columns present in the file are preserved in the exported sheets.
+
+## Grouping & Splitting Logic
+
+Groups are first formed according to the selected **Split Mode** (Cover Spec + Paper, Cover Spec only, or Paper only). An additional sub-split is then applied automatically:
+
+- If the Cover Spec for a group has **No Finish** (position 4 of the code = `0`), that group is further divided by the `Bleeds` column value, producing two separate output sheets — one for `Bleed Yes` and one for `Bleed No`.
+- Groups with any other finish type are not affected by the bleed sub-split.
+
+**Example:** a No Finish group that would previously produce one sheet keyed `C400P2 - DHOL01` now produces two sheets:
+- `C400P2 - DHOL01 - Bleed Yes`
+- `C400P2 - DHOL01 - Bleed No`
+
+## Row Sort Order
+
+Within every output sheet, rows are sorted in the following priority order, all descending (largest to smallest):
+
+1. Trim Width
+2. Trim Height
+3. Extent
+4. Quantity
+
+Rows with blank or non-numeric values in any of these columns are sorted to the bottom.
 
 ## Cover Spec Code Structure
 
