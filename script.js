@@ -225,6 +225,39 @@ function getMode() {
     return document.querySelector('input[name="splitMode"]:checked').value;
 }
 
+// Numeric helper — parse a cell value to float, treating blanks/non-numeric as -Infinity
+// so that rows with missing values always sort to the bottom.
+function numVal(v) {
+    const n = parseFloat(v);
+    return isNaN(n) ? -Infinity : n;
+}
+
+// Sort an array of row indices (into workbookData) by:
+//   Trim Width desc → Trim Height desc → Extent desc → Quantity desc
+function sortIndices(indices) {
+    return [...indices].sort((a, b) => {
+        const ra = workbookData[a];
+        const rb = workbookData[b];
+
+        const wDiff = numVal(rb['Trim Width'])  - numVal(ra['Trim Width']);
+        if (wDiff !== 0) return wDiff;
+
+        const hDiff = numVal(rb['Trim Height']) - numVal(ra['Trim Height']);
+        if (hDiff !== 0) return hDiff;
+
+        const eDiff = numVal(rb['Extent'])      - numVal(ra['Extent']);
+        if (eDiff !== 0) return eDiff;
+
+        return numVal(rb['Quantity']) - numVal(ra['Quantity']);
+    });
+}
+
+// Returns true if the Cover Spec code for this row decodes to "No Finish" (position 3 = '0')
+function isNoFinish(row) {
+    const code = (row['Cover Spec'] || '').toUpperCase().trim();
+    return code.length >= 4 && code[3] === '0';
+}
+
 // Returns a map of groupKey -> array of 0-based row indices (excluding header row 0)
 function getGroupIndices(mode) {
     const groups = {};
@@ -233,9 +266,22 @@ function getGroupIndices(mode) {
         if (mode === 'both')       key = `${row['Cover Spec']} - ${row['Paper']}`;
         else if (mode === 'cover') key = row['Cover Spec'] || 'Unknown';
         else                       key = row['Paper']      || 'Unknown';
+
+        // When the finish is "No Finish", further split by Bleed (Yes / No)
+        if (isNoFinish(row)) {
+            const bleed = (String(row['Bleeds'] || '').trim().toLowerCase() === 'yes') ? 'Yes' : 'No';
+            key += ` - Bleed ${bleed}`;
+        }
+
         if (!groups[key]) groups[key] = [];
         groups[key].push(idx); // idx into workbookData = data row index (0-based)
     });
+
+    // Sort each group's rows: Trim Width → Trim Height → Extent → Quantity (all desc)
+    Object.keys(groups).forEach(key => {
+        groups[key] = sortIndices(groups[key]);
+    });
+
     return groups;
 }
 
